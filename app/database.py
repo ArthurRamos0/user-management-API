@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "sqlite:///./users.db"
+DATABASE_URL = "sqlite:///./test.db"  # exemplo
 
 engine = create_engine(
     DATABASE_URL,
@@ -17,7 +17,7 @@ SessionLocal = sessionmaker(
 Base = declarative_base()
 
 
-# 🔥 DEPENDÊNCIA DO FASTAPI (ISS0 QUE FALTAVA)
+# ✅ DEPENDÊNCIA DO FASTAPI
 def get_db():
     db = SessionLocal()
     try:

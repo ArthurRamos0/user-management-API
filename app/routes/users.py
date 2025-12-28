@@ -1,35 +1,40 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from .. import models, schemas
-from ..database import get_db
+from app.database import get_db
+from app import models
+from app.core.security import hash_password
+from app.schemas import UserCreate
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.post(
-    "/",
-    response_model=schemas.UserResponse,
-    status_code=status.HTTP_201_CREATED
-)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # Verifica se o email já existe
-    existing_user = db.query(models.User).filter(
-        models.User.email == user.email
-    ).first()
 
+@router.post("/", status_code=status.HTTP_201_CREATED)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    # Verifica se email já existe
+    existing_user = (
+        db.query(models.User)
+        .filter(models.User.email == user.email)
+        .first()
+    )
     if existing_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=400,
             detail="Email já cadastrado"
         )
 
-    new_user = models.User(
+    db_user = models.User(
+        email=user.email,
         name=user.name,
-        email=user.email
+        password=hash_password(user.password),
     )
 
-    db.add(new_user)
+    db.add(db_user)
     db.commit()
-    db.refresh(new_user)
+    db.refresh(db_user)
 
-    return new_user
+    return {
+        "id": db_user.id,
+        "email": db_user.email,
+        "name": db_user.name,
+    }
