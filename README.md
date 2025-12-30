@@ -33,7 +33,7 @@ SQLAlchemy
 📂 Estrutura do Projeto
 user-management-api/
 │
-├── app/<br>
+├── app/
 │   ├── main.py
 │   ├── database.py
 │   ├── models.py
